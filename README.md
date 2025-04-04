@@ -9,7 +9,7 @@
 
 (<sup>:email:</sup>) corresponding author, xgwang@hust.edu.cn
 
-Accepted to CVPR 2025!
+Accepted to CVPR 2025 as Highlight!
 
 [![DiffusionDrive](https://img.shields.io/badge/Paper-DiffusionDrive-2b9348.svg?logo=arXiv)](https://arxiv.org/abs/2411.15139)&nbsp;
 [![huggingface weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-DiffusionDrive-yellow)](https://huggingface.co/hustvl/DiffusionDrive)&nbsp;
@@ -19,6 +19,7 @@ Accepted to CVPR 2025!
 </div>
 
 ## News
+* **` Apr. 4th, 2025`:** DiffusionDrive is awarded as CVPR 2025 Highlight!
 * **` Feb. 27th, 2025`:** DiffusionDrive is accepted to CVPR 2025!
 * **` Jan. 18th, 2025`:** We release the initial version of code and weight on nuScenes, along with documentation and training/evaluation scripts. Please run `git checkout nusc` to use it.
 * **` Dec. 16th, 2024`:** We release the initial version of code and weight on NAVSIM, along with documentation and training/evaluation scripts.
