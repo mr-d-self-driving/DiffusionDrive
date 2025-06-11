@@ -1,0 +1,95 @@
+#### Most of the dockerfile is taken from 
+#### https://github.com/matifali/dockerdl
+
+# Build argumnets
+# H100 need CUDA >= 11.8,
+ARG CUDA_VER=12.1.1
+ARG UBUNTU_VER=22.04
+
+# Download the base image
+FROM nvidia/cuda:${CUDA_VER}-cudnn8-devel-ubuntu${UBUNTU_VER}
+# you can check for all available images at https://hub.docker.com/r/nvidia/cuda/tags
+
+# Python version
+ARG PYTHON_VER=3.10
+
+# Install as root
+USER root
+
+# Shell
+SHELL ["/bin/bash", "--login", "-o", "pipefail", "-c"]
+
+ARG DEBIAN_FRONTEND="noninteractive"
+
+# Install dependencies
+RUN apt-get update && apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive TZ=Asia/Tokyo apt-get install -y --no-install-recommends \
+    bash \
+    bash-completion \
+    ca-certificates \
+    curl \
+    git \
+    byobu \
+    software-properties-common \
+    htop \
+    openssh-client \
+    openssh-server \
+    sudo \
+    unzip \
+    vim \
+    wget \
+    libgl1-mesa-glx \
+    zip && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    python${PYTHON_VER} \
+    python${PYTHON_VER}-dev \
+    python${PYTHON_VER}-venv \
+    python${PYTHON_VER}-distutils \
+    python3-apt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VER} 2 && \
+    update-alternatives --set python3 /usr/bin/python${PYTHON_VER}
+
+
+ARG USERNAME=dio
+ARG USERID=1001
+ARG GROUPID=1001
+
+# Add a user `${USERNAME}` so that you're not developing as the `root` user
+RUN groupadd -g ${GROUPID} ${USERNAME} && \
+    useradd ${USERNAME} \
+    --create-home \
+    --uid ${USERID} \
+    --gid ${GROUPID} \
+    --shell=/bin/bash && \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
+
+# Change to your user
+USER ${USERNAME}
+
+# Install pip. If you use python-pip might get error because old version
+# See https://stackoverflow.com/questions/70431655/importerror-cannot-import-name-html5lib-from-pip-vendor-usr-lib-python3
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VER}
+
+ARG HOME=/home/${USERNAME}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+ENV PATH=$HOME/.local/bin:$PATH
+
+# Install xformers and diffuser
+WORKDIR /home/${USERNAME}
+RUN pip install --upgrade --no-cache-dir pip && \
+    # pip install --upgrade --no-cache-dir \
+    pip cache purge && \
+    # Set path of python packages
+    echo "# Set path of python packages" >>${HOME}/.bashrc && \
+    echo 'export PATH=$HOME/.local/bin:$PATH' >>${HOME}/.bashrc
+
+WORKDIR /workspace
+ENTRYPOINT [ "/bin/bash" ] 

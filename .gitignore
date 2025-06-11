@@ -1,0 +1,119 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+develop-eggs/
+.eggs/
+*.egg-info/
+*.egg
+sdist/
+wheel/
+share/python-wheels/
+*.pax
+*.whl
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.pytest_cache/
+.coverage
+.tox/
+htmlcov/
+.coverage.*
+.hypothesis/
+.nox/
+
+# Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest
+.pytest_cache/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Jupyter Notebook
+.ipynb_checkpoints
+notebooks/.ipynb_checkpoints/
+
+# reStructuredText files
+*.rst
+*.orig
+
+# Sphinx documentation
+docs/_build/
+
+# PyInstaller
+*.spec
+build/
+dist/
+
+# Setuptools
+.eggs/
+
+# Thumbs.db
+Thumbs.db
+
+# Windows
+*.log
+*.ini
+
+# MacOS
+.DS_Store
+
+# Black
+.black
+
+# Data files
+*.sqlite3
+*.db
+*.csv
+*.log
+
+# Other common exclusions
+*.bak
+*.swp
+*~
+*.log
+*.temp
+.project
+.pydevproject
+
+# For this projects
+navsim_workspace
+logs/
+*.bin
+*.npy
