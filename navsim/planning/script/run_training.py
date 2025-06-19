@@ -132,10 +132,8 @@ def main(cfg: DictConfig) -> None:
     # Add agent-specific callbacks
     callbacks.extend(agent.get_training_callbacks())
 
-    trainer = pl.Trainer(**cfg.trainer.params, callbacks=callbacks)
-
     logger.info("Building Trainer")
-    trainer = pl.Trainer(**cfg.trainer.params, callbacks=agent.get_training_callbacks())
+    trainer = pl.Trainer(**cfg.trainer.params, callbacks=callbacks)
 
     logger.info("Starting Training")
     trainer.fit(
