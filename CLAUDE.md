@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DiffusionDrive is a truncated diffusion model for end-to-end autonomous driving built on top of the NAVSIM framework. It combines traditional perception (TransFuser backbone) with modern generative modeling (diffusion) for real-time trajectory planning.
 
+## Recent Changes (2025-06-26) - Community Contribution
+
+> **Note:** The following changes were made by a community contributor and are not from the original DiffusionDrive authors.
+
+### Script Reorganization
+- All scripts moved to organized structure under `scripts/` directory
+- Legacy date-based scripts archived in `archive/legacy/`
+- New parameterized scripts with CLI arguments
+- See [CHANGELOG.md](../CHANGELOG.md) and [Migration Guide](../docs/MIGRATION_GUIDE.md)
+
 ## Development Commands
 
 ### Environment Setup
