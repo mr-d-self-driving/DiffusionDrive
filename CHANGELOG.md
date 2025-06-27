@@ -43,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Carriage return errors in shell scripts for Ubuntu compatibility
 
+### Reorganized
+- Moved notebooks from root directory to `notebooks/evaluation/`
+  - `compare_eval.ipynb` - Model comparison and analysis
+  - `visualization_eval.ipynb` - Evaluation visualization utilities
+
 ### Migration Guide
 Old scripts have been moved to `archive/legacy/`. To migrate:
 
