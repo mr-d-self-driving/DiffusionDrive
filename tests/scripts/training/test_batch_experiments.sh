@@ -44,7 +44,7 @@ EOF
 chmod +x "$MOCK_BIN/bash"
 
 OUTPUT=$($BATCH_SCRIPT 2>&1)
-assert_contains "$OUTPUT" "Starting batch experiments"
+assert_contains "$OUTPUT" "Starting experiment with batch size:"
 assert_contains "$OUTPUT" "batch-size 32"
 assert_contains "$OUTPUT" "batch-size 64"
 assert_contains "$OUTPUT" "batch-size 128"

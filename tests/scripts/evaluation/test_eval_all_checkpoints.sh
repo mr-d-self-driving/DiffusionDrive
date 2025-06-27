@@ -51,7 +51,7 @@ chmod +x "$TEST_DIR/mock_eval.sh"
 export EVAL_SCRIPT="$TEST_DIR/mock_eval.sh"
 
 OUTPUT=$($EVAL_ALL_SCRIPT --dir "$CHECKPOINT_DIR" 2>&1)
-assert_contains "$OUTPUT" "Found 3 checkpoint files" "Should find all .ckpt files"
+assert_contains "$OUTPUT" "Found 3 checkpoint(s)" "Should find all .ckpt files"
 assert_contains "$OUTPUT" "epoch_10.ckpt"
 assert_contains "$OUTPUT" "epoch_20.ckpt"
 assert_contains "$OUTPUT" "best_model.ckpt"
@@ -114,7 +114,7 @@ export EVAL_SCRIPT="$TEST_DIR/mock_eval.sh"
 
 OUTPUT=$($EVAL_ALL_SCRIPT --dir "$CHECKPOINT_DIR" 2>&1)
 assert_contains "$OUTPUT" "Using GPUs: 0,1" "Should show GPU constraint"
-assert_contains "$OUTPUT" "Found 4 checkpoint files"
+assert_contains "$OUTPUT" "Found 4 checkpoint(s)"
 
 cleanup_test_dir "$TEST_DIR"
 test_end
@@ -145,7 +145,7 @@ assert_not_empty "$LOG_FILE" "Summary log should be created"
 
 if [ -n "$LOG_FILE" ]; then
     LOG_CONTENT=$(cat "$LOG_FILE")
-    assert_contains "$LOG_CONTENT" "Evaluating all checkpoints"
+    assert_contains "$LOG_CONTENT" "Batch Evaluation Configuration:"
     assert_contains "$LOG_CONTENT" "model_1.ckpt"
     assert_contains "$LOG_CONTENT" "model_2.ckpt"
 fi

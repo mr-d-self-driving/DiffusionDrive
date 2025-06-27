@@ -42,9 +42,23 @@ test_start "setup_environment fails with missing NAVSIM_DEVKIT_ROOT"
 TEST_DIR=$(create_test_dir)
 LOG_DIR="$TEST_DIR/logs"
 setup_logging "test_env"
+OLD_NAVSIM_DEVKIT_ROOT="$NAVSIM_DEVKIT_ROOT"
+OLD_NAVSIM_EXP_ROOT="$NAVSIM_EXP_ROOT"
 unset NAVSIM_DEVKIT_ROOT
 unset NAVSIM_EXP_ROOT
-assert_failure "setup_environment" "Should fail without NAVSIM_DEVKIT_ROOT"
+# Run in subshell to catch exit
+OUTPUT=$(bash -c "source $COMMON_SCRIPT && setup_logging test_env && setup_environment" 2>&1)
+EXIT_CODE=$?
+if [ "$EXIT_CODE" -eq 0 ]; then
+    echo -e "\n  ${RED}✗ Should exit with non-zero code${NC}"
+    echo "    Expected: non-zero exit code"
+    echo "    Actual:   $EXIT_CODE"
+    TEST_FAILED=1
+fi
+assert_contains "$OUTPUT" "ERROR: NAVSIM_DEVKIT_ROOT not set"
+# Restore variables
+export NAVSIM_DEVKIT_ROOT="$OLD_NAVSIM_DEVKIT_ROOT"
+export NAVSIM_EXP_ROOT="$OLD_NAVSIM_EXP_ROOT"
 test_end
 cleanup_test_dir "$TEST_DIR"
 
