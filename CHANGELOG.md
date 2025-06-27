@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch experiment runner for automated hyperparameter sweeps
 - Comprehensive evaluation scripts with automatic checkpoint discovery
 - Script documentation in `scripts/README.md`
+- Comprehensive test suite for all shell scripts in `tests/scripts/`
+  - Test framework with assertions and utilities
+  - Unit tests for training and evaluation scripts
+  - Integration tests for script workflows
+  - 2-GPU constraint enforcement in all tests
+  - Mock environment for isolated testing
+  - Example GitHub Actions workflow for CI/CD
 
 ### Changed
 - **BREAKING**: Reorganized all scripts into structured directories:
@@ -32,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Root directory script clutter (8 training scripts)
 - Duplicate code across multiple scripts
+
+### Fixed
+- Carriage return errors in shell scripts for Ubuntu compatibility
 
 ### Migration Guide
 Old scripts have been moved to `archive/legacy/`. To migrate:
