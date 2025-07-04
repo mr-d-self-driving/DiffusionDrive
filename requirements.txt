@@ -1,5 +1,5 @@
 nuplan-devkit @ git+https://github.com/motional/nuplan-devkit/@nuplan-devkit-v1.2
-scikit-learn==1.2.2
+scikit-learn==1.5.0
 positional-encodings==6.0.1
 
 # nuplan requirements
@@ -18,7 +18,7 @@ nest_asyncio  # Used to nest event loops when running nuBoard/jupyter
 numpy==1.23.4
 opencv-python==4.9.0.80  # Used widely
 pandas    # Used widely
-Pillow    # Used widely to render images
+Pillow>=10.4.0  # Used widely to render images, security fixes
 psutil  # Used widely to get the number of CPUs
 pyarrow # For parquet
 pyinstrument    # Used widely as profiler
@@ -31,19 +31,19 @@ retry
 rtree # Used in occupancy maps
 scipy  # Used widely
 selenium # Used in bokeh export png
-setuptools==65.5.1  # Used in setup.py, pinned to not break pytorch
+setuptools==78.1.1  # Updated for security fixes
 Shapely>=2.0.0  # Used widely
 SQLAlchemy==1.4.27  # older versions don't work with some table definitions
 sympy  # Use for symbolic algebra
-tornado  # Used in nuboard.py
+tornado>=6.4.2  # Used in nuboard.py, pinned for security
 tqdm  # Used widely
 ujson  # Used in serialiation_callback.py
 
-torch==2.1.0+cu121
-torchvision==0.16.0+cu121
-pytorch-lightning==2.2.1
+torch==2.7.1+cu121
+torchvision==0.18.1+cu121
+pytorch-lightning==2.4.0
 tensorboard==2.16.2
-protobuf==4.25.3
+protobuf==4.25.8
 
-notebook
+notebook>=7.3.2  # Pinned for security fixes
 timm

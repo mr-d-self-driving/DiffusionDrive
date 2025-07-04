@@ -88,7 +88,7 @@ WORKDIR /home/${USERNAME}
 RUN pip install --upgrade --no-cache-dir pip && \
     pip install --no-cache-dir \
     git+https://github.com/motional/nuplan-devkit/@nuplan-devkit-v1.2 \
-    scikit-learn==1.2.2 \
+    scikit-learn==1.5.0 \
     positional-encodings==6.0.1 \
     aioboto3 \
     aiofiles \
@@ -105,7 +105,7 @@ RUN pip install --upgrade --no-cache-dir pip && \
     numpy==1.23.4 \
     opencv-python==4.9.0.80 \
     pandas \
-    Pillow \
+    Pillow>=10.4.0 \
     psutil \
     pyarrow \
     pyinstrument \
@@ -118,19 +118,19 @@ RUN pip install --upgrade --no-cache-dir pip && \
     rtree \
     scipy \
     selenium \
-    setuptools==65.5.1 \
+    setuptools==78.1.1 \
     Shapely>=2.0.0 \
     SQLAlchemy==1.4.27 \
     sympy \
-    tornado \
+    tornado>=6.4.2 \
     tqdm \
     ujson \
-    torch==2.1.0+cu121 \
-    torchvision==0.16.0+cu121 \
-    pytorch-lightning==2.2.1 \
+    torch==2.7.1+cu121 \
+    torchvision==0.18.1+cu121 \
+    pytorch-lightning==2.4.0 \
     tensorboard==2.16.2 \
-    protobuf==4.25.3 \
-    notebook \
+    protobuf==4.25.8 \
+    notebook>=7.3.2 \
     timm \
     diffusers \
     einops \
