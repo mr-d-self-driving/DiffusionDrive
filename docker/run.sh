@@ -2,7 +2,6 @@
 docker run -it \
     --gpus all \
     --ipc host \
-    --rm \
     --ulimit memlock=-1 \
     --name ddrive_dio \
     -v /mnt/nvme0/workspace:/workspace \
