@@ -17,11 +17,12 @@ setuptools.setup(
     author_email="kashyap.chitta@uni-tuebingen.de",
     description="NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking",
     url="https://github.com/autonomousvision/navsim",
-    python_requires=">=3.9",
+    python_requires=">=3.9,<=3.10",
     packages=setuptools.find_packages(script_folder),
     package_dir={"": "."},
     classifiers=[
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
         "License :: Free for non-commercial use",
     ],
