@@ -46,6 +46,7 @@ htmlcov/
 *.sublime-project
 *.sublime-workspace
 .DS_Store
+.claude/
 
 # Virtual environment
 .venv/
