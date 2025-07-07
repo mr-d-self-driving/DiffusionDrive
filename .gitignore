@@ -125,3 +125,8 @@ logs/
 *.tgz
 *.tar.gz
 download/openscene-v1.1/
+
+# Personal/local configuration files
+.local/
+*.local
+*.personal

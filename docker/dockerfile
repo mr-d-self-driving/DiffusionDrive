@@ -59,9 +59,9 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
     update-alternatives --set python3 /usr/bin/python${PYTHON_VER}
 
 
-ARG USERNAME=dio
-ARG USERID=1001
-ARG GROUPID=1001
+ARG USERNAME=user
+ARG USERID=1000
+ARG GROUPID=1000
 
 # Add a user `${USERNAME}` so that you're not developing as the `root` user
 RUN groupadd -g ${GROUPID} ${USERNAME} && \
