@@ -21,6 +21,7 @@ NUM_WORKERS=8
 GPU_DEVICES="0,1,2,3,4,5,6,7"
 CONFIG_NAME="default_training"
 AGENT="diffusiondrive_agent"
+LEARNING_RATE=""
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -53,6 +54,10 @@ while [[ $# -gt 0 ]]; do
             AGENT="$2"
             shift 2
             ;;
+        --lr)
+            LEARNING_RATE="$2"
+            shift 2
+            ;;
         --help)
             echo "Usage: $0 [options]"
             echo "  --name NAME          Experiment name (required)"
@@ -62,6 +67,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --gpus DEVICES       GPU devices (default: 0,1,2,3,4,5,6,7)"
             echo "  --config CONFIG      Config name (default: default_training)"
             echo "  --agent AGENT        Agent type (default: diffusiondrive_agent)"
+            echo "  --lr RATE            Learning rate (optional, overrides agent default)"
             exit 0
             ;;
         *)
@@ -93,9 +99,17 @@ echo "  Agent: $AGENT" | tee -a "$LOG_FILE"
 echo "  Max Epochs: $MAX_EPOCHS" | tee -a "$LOG_FILE"
 echo "  Batch Size: $BATCH_SIZE" | tee -a "$LOG_FILE"
 echo "  Workers: $NUM_WORKERS" | tee -a "$LOG_FILE"
+if [ ! -z "$LEARNING_RATE" ]; then
+    echo "  Learning Rate: $LEARNING_RATE" | tee -a "$LOG_FILE"
+fi
 
 # Build training arguments
 build_training_args "$AGENT" "$FULL_EXPERIMENT_NAME" "$MAX_EPOCHS" "$BATCH_SIZE" "$NUM_WORKERS"
+
+# Add learning rate override if specified
+if [ ! -z "$LEARNING_RATE" ]; then
+    TRAINING_ARGS+=("agent.lr=$LEARNING_RATE")
+fi
 
 # Start training
 log_start "Training"
