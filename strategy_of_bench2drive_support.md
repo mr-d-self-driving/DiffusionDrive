@@ -2,7 +2,18 @@
 
 ## Critical Context: Live CARLA Evaluation Requirement
 
-**Important**: This project requires the trained model to control vehicles in real-time within the CARLA simulator. This requirement fundamentally influences the choice between the two approaches below.
+**Important**: This project requires the trained model to control vehicles in real-time within the CARLA simulator. This requirement fundamentally influences the choice between the approaches below.
+
+## Three Approaches Based on Your Goals
+
+### Which Approach to Choose?
+
+| Your Goal | Recommended Approach |
+| :--- | :--- |
+| Train on Bench2Drive, evaluate on CARLA only | **Method 3** (CARLA-Native) |
+| Train on Bench2Drive, compare with NavSim models | **Method 2** (Model Adaptation) |
+| Train on mixed datasets (Bench2Drive + NavSim) | **Method 2** (Model Adaptation) |
+| One-time conversion, no live CARLA needed | **Method 1** (Data Conversion) |
 
 ## Approach 1: Convert Bench2Drive (CARLA) to NAVSIM Format 🔄
 
@@ -62,14 +73,62 @@ This approach involves modifying the model's data-loading pipeline to make it co
 
 ---
 
-## Recommendation: Use Approach 2 (Model Adaptation)
+## Approach 3: CARLA-Native Pipeline (No Coordinate Transform) 🚗
 
-Given the requirement for live CARLA evaluation, **Approach 2 is the clear choice**. It provides:
+This approach is a simplified version of Method 2, specifically for when you're training and evaluating exclusively within the CARLA ecosystem.
 
-1. **Unified data pipeline** for training and live evaluation
-2. **No data duplication** or conversion overhead
-3. **Flexibility** to switch between datasets
-4. **Native support** for real-time CARLA integration
-5. **Caching capability** for training efficiency
+### What You Need to Do
 
-The implementation effort is worthwhile as it directly supports your end goal of controlling vehicles in the CARLA simulator.
+1. **Implement a Simplified Data Loader:** Create a data loader that reads Bench2Drive format and adapts it to DiffusionDrive's expected structure, but WITHOUT coordinate transformations.
+2. **Keep CARLA Coordinates:** Since both training and evaluation use CARLA data, keep everything in CARLA's coordinate system.
+3. **Minimal Adaptations:**
+   * Map sensor data (cameras, LiDAR) to expected format
+   * Convert data structures (JSON → pickle format)
+   * Simplify driving commands (complex routes → left/straight/right)
+   * Handle temporal downsampling (10Hz → 2Hz)
+4. **Direct CARLA Integration:** The same loader works seamlessly with live CARLA data since no coordinate transformation is needed.
+
+### Key Differences from Method 2
+
+| Aspect | Method 2 (Full Adaptation) | Method 3 (CARLA-Native) |
+| :--- | :--- | :--- |
+| **Coordinate Transform** | ✅ CARLA ↔ NavSim | ❌ Stay in CARLA |
+| **Rotation Conversion** | ✅ Degrees ↔ Radians, CW ↔ CCW | ⚠️ Only degrees → radians |
+| **Mixed Dataset Support** | ✅ Can train on both | ❌ CARLA only |
+| **NavSim Metric Compatibility** | ✅ Full compatibility | ❌ May need adaptation |
+| **Implementation Complexity** | Higher | Lower |
+| **Performance** | Slightly slower (transforms) | Faster (no transforms) |
+
+---
+
+## Comparison of All Three Approaches
+
+| Aspect | Method 1 (Convert Data) | Method 2 (Full Adaptation) | Method 3 (CARLA-Native) |
+| :--- | :--- | :--- | :--- |
+| **Coordinate Transform** | On-disk, permanent | In-memory, configurable | None needed |
+| **Live CARLA Support** | ❌ Requires separate pipeline | ✅ Native support | ✅ Native support |
+| **Mixed Dataset Training** | ❌ NavSim format only | ✅ Supports both | ❌ CARLA only |
+| **Implementation Effort** | High (data processing) | High (full adapter) | Medium (simplified adapter) |
+| **Best Use Case** | One-time research | General purpose | CARLA-specific projects |
+
+---
+
+## Recommendation Based on Your Needs
+
+**For CARLA-only training and evaluation**: Use **Method 3** (CARLA-Native)
+
+* Simplest implementation
+* Best performance
+* Perfect alignment between training and evaluation
+
+**For research comparing with NavSim models**: Use **Method 2** (Full Adaptation)
+
+* Enables fair comparison
+* Supports mixed training
+* More flexible
+
+**For one-time experiments without live evaluation**: Use **Method 1** (Data Conversion)
+
+* Set and forget
+* Works with existing NavSim tools
+* No code changes needed

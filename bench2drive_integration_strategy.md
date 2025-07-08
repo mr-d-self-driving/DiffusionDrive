@@ -1,21 +1,29 @@
-# Bench2Drive Integration Strategy - Method 2: Direct Data Loading
+# Bench2Drive Integration Strategy
 
 ## Overview
 
-This document outlines the implementation strategy for adapting DiffusionDrive to read Bench2Drive data directly without converting the dataset. This approach maintains the original data integrity while enabling seamless training and evaluation, including critical support for live CARLA simulator integration.
+This document outlines implementation strategies for integrating Bench2Drive with DiffusionDrive. We present three methods based on different use cases and requirements.
 
-## Why Method 2 is Essential
+## Method Selection Guide
 
-### Critical Requirements
-1. **Live CARLA Evaluation**: The model must control vehicles in real-time in the CARLA simulator
-2. **Unified Pipeline**: Same data loading code must work for both offline training and online evaluation
-3. **Future-Proof**: Must support both cached training data and streaming sensor data from CARLA
+| Your Goal | Recommended Method |
+| :--- | :--- |
+| Train on Bench2Drive, evaluate on CARLA only | **Method 3** (CARLA-Native) |
+| Train on Bench2Drive, compare with NavSim models | **Method 2** (Full Adaptation) |
+| Train on mixed datasets (Bench2Drive + NavSim) | **Method 2** (Full Adaptation) |
+| One-time conversion, no live CARLA needed | **Method 1** (Data Conversion) |
 
-### Method 2 Advantages
-- **Single Codebase**: One transformation pipeline for training and live evaluation
-- **No Data Duplication**: Original Bench2Drive data remains unchanged
-- **Caching Support**: Can still cache transformed data for training efficiency
-- **Live CARLA Ready**: Same loader can accept data from CARLA client for real-time control
+## Method 1: Data Conversion (Not Recommended)
+
+One-time conversion of Bench2Drive data to NavSim format. Requires separate pipeline for live CARLA evaluation.
+
+## Method 2: Full Model Adaptation
+
+Complete adaptation layer supporting both CARLA and NavSim coordinate systems with configurable transformations.
+
+## Method 3: CARLA-Native Pipeline (Recommended for CARLA-only)
+
+Simplified adaptation keeping everything in CARLA coordinates, perfect for CARLA-specific projects.
 
 ## Architecture Design
 
@@ -55,7 +63,7 @@ AbstractFeatureBuilder
     └── Bench2DriveFeatureBuilder (New)
 ```
 
-## Implementation Details
+## Method 2: Full Implementation Details
 
 ### 1. Coordinate System Transformation
 
@@ -532,6 +540,116 @@ python navsim/planning/script/run_training.py \
     trainer.params.max_epochs=100
 ```
 
+## Method 3: CARLA-Native Implementation (Simplified)
+
+### Overview
+
+Method 3 is a simplified version of Method 2, designed for when you're training and evaluating exclusively within the CARLA ecosystem. No coordinate transformations are needed.
+
+### Key Simplifications
+
+```python
+class CARLANativeLoader(Bench2DriveSceneLoader):
+    """Simplified loader for CARLA-only training and evaluation"""
+    
+    def __init__(self, data_root: Path = None, carla_client = None):
+        super().__init__(data_root, carla_client)
+        # No coordinate transformer needed
+        self.transform_coordinates = False
+    
+    def _process_frame(self, b2d_anno: Dict) -> Dict:
+        """Process Bench2Drive frame without coordinate transformation"""
+        return {
+            'token': self._generate_token(),
+            # Keep CARLA coordinates as-is
+            'ego2global_translation': [b2d_anno['x'], b2d_anno['y'], b2d_anno.get('z', 0)],
+            'ego2global_rotation': self._euler_to_quaternion(b2d_anno['theta']),  # Just format conversion
+            'ego_dynamic_state': [
+                b2d_anno['speed'] * np.cos(np.radians(b2d_anno['theta'])),
+                b2d_anno['speed'] * np.sin(np.radians(b2d_anno['theta'])),
+                b2d_anno['acceleration']['x'],
+                b2d_anno['acceleration']['y']
+            ],
+            'driving_command': self._simplify_command(b2d_anno['command_near']),
+        }
+    
+    def _process_actors(self, actors: List[Dict]) -> List[Dict]:
+        """Process actor annotations without coordinate transformation"""
+        processed_actors = []
+        
+        for actor in actors:
+            # Keep CARLA coordinates and units
+            processed_actor = {
+                'translation': [actor['location']['x'], actor['location']['y'], actor['location']['z']],
+                'size': [2 * actor['extent']['x'], 2 * actor['extent']['y'], 2 * actor['extent']['z']],
+                'rotation': np.radians(actor['rotation']['yaw']),  # Only convert degrees to radians
+                'velocity': [actor['velocity']['x'], actor['velocity']['y'], 0],
+                'type': self._map_actor_type(actor['type_id'])
+            }
+            processed_actors.append(processed_actor)
+            
+        return processed_actors
+```
+
+### What Still Needs Adaptation
+
+Even without coordinate transformation, you still need to:
+
+1. **Data Structure Mapping**
+   - Convert Bench2Drive's file structure to DiffusionDrive's expected format
+   - Create scene tokens and frame groupings
+   - Handle pickle serialization
+
+2. **Sensor Mapping**
+   - Map 6 CARLA cameras to 8 expected cameras (with duplicates)
+   - Convert LAZ LiDAR files to numpy arrays
+   - Match image dimensions and formats
+
+3. **Feature Extraction**
+   - Stitch front cameras for wide-view input
+   - Create BEV representations from point clouds
+   - Format velocity and command inputs
+
+4. **Command Simplification**
+
+   ```python
+   def _simplify_command(self, carla_command: str) -> int:
+       """Convert complex CARLA commands to simple left/straight/right"""
+       command_map = {
+           'CHANGELANELEFT': 0, 'TURNLEFT': 0, 'LEFT': 0,
+           'STRAIGHT': 1, 'LANEFOLLOW': 1,
+           'CHANGELANERIGHT': 2, 'TURNRIGHT': 2, 'RIGHT': 2
+       }
+       return command_map.get(carla_command.upper(), 1)
+   ```
+
+### Configuration for Method 3
+
+```yaml
+# config/common/train_test_split/bench2drive_carla_native.yaml
+dataset_type: bench2drive_carla_native
+transform_coordinates: false  # Key difference
+coordinate_system: carla      # Stay in CARLA coordinates
+
+# Everything else remains similar
+bench2drive:
+  data_root: ${oc.env:BENCH2DRIVE_ROOT}
+  sampling_rate: 5  # 10Hz → 2Hz
+```
+
+### Advantages of Method 3
+
+1. **Simplicity**: No complex coordinate transformations
+2. **Performance**: Faster data loading without transformations
+3. **Debugging**: Easier to verify data correctness
+4. **Live CARLA**: Perfect alignment between training and deployment
+
+### Limitations
+
+1. **No NavSim Compatibility**: Cannot compare with NavSim-trained models
+2. **No Mixed Training**: Cannot combine with NavSim datasets
+3. **Metric Adaptation**: Some evaluation metrics may expect NavSim coordinates
+
 ## Testing and Validation
 
 ### 1. Coordinate Transformation Tests
@@ -638,11 +756,13 @@ def visualize_transformation(b2d_scene, navsim_scene):
 ## Key Implementation Considerations
 
 ### Caching Strategy
+
 - Cache transformed data during first epoch for training efficiency
 - Use memory-mapped files for large sensor data
 - Implement cache warming before training starts
 
 ### Live CARLA Integration
+
 ```python
 # Example usage for live evaluation
 carla_client = carla.Client('localhost', 2000)
@@ -658,4 +778,24 @@ while True:
 
 ## Conclusion
 
-This implementation strategy is essential for meeting the critical requirement of live CARLA evaluation. By implementing Method 2, we create a unified data pipeline that works seamlessly for both offline training on Bench2Drive data and online evaluation in the CARLA simulator. The modular design ensures maintainability while the caching strategy preserves training efficiency.
+We've presented three implementation strategies for integrating Bench2Drive with DiffusionDrive:
+
+### Method 1: Data Conversion
+
+- **Use case**: One-time experiments without live evaluation
+- **Pros**: Works with existing tools
+- **Cons**: No live CARLA support, data duplication
+
+### Method 2: Full Model Adaptation
+
+- **Use case**: Research requiring NavSim compatibility or mixed datasets
+- **Pros**: Most flexible, supports all scenarios
+- **Cons**: Most complex implementation
+
+### Method 3: CARLA-Native Pipeline (Recommended for CARLA-only)
+
+- **Use case**: Training and evaluating exclusively on CARLA data
+- **Pros**: Simplest implementation, best performance, perfect train-eval alignment
+- **Cons**: Limited to CARLA ecosystem
+
+For most CARLA-focused projects, **Method 3 provides the best balance** of simplicity and functionality while maintaining perfect alignment between training and live evaluation.
