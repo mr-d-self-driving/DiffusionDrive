@@ -46,7 +46,6 @@ htmlcov/
 *.sublime-project
 *.sublime-workspace
 .DS_Store
-.claude/
 
 # Virtual environment
 .venv/
@@ -118,3 +117,16 @@ navsim_workspace
 logs/
 *.bin
 *.npy
+
+# Claude-related files
+.claude/
+
+# Downloaded dataset files
+*.tgz
+*.tar.gz
+download/openscene-v1.1/
+
+# Personal/local configuration files
+.local/
+*.local
+*.personal
